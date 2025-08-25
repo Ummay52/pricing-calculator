@@ -4,8 +4,339 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dynamic Pricing Calculator</title>
-   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-   <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #667eea;
+      --primary-dark: #5a67d8;
+      --secondary: #764ba2;
+      --accent: #f093fb;
+      --success: #48bb78;
+      --background: #0f0f23;
+      --surface: #1a1a2e;
+      --surface-hover: #252544;
+      --text: #ffffff;
+      --text-muted: #a0aec0;
+      --border: #2d3748;
+      --shadow: rgba(102, 126, 234, 0.3);
+      --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 25% 25%, var(--primary) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, var(--secondary) 0%, transparent 50%);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .main-title {
+      font-size: 3rem;
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 2rem;
+      text-align: center;
+      animation: titleGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes titleGlow {
+      from { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5)); }
+      to { filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.8)); }
+    }
+
+    main {
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .calculator {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .calculator::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .panel h2, .summary h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+
+    .form-row {
+      margin-bottom: 1.5rem;
+    }
+
+    .label-text {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--background);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input[type="number"]:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+      appearance: none;
+    }
+
+    .addons {
+      border: none;
+      margin: 1.5rem 0;
+    }
+
+    .addons legend {
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      padding: 0.75rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .checkbox:hover {
+      background: var(--surface-hover);
+      transform: translateX(5px);
+    }
+
+    .checkbox input {
+      opacity: 0;
+      position: absolute;
+    }
+
+    .chk {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      margin-right: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      background: var(--background);
+    }
+
+    .checkbox input:checked + .chk {
+      background: var(--gradient);
+      border-color: var(--primary);
+      animation: checkPop 0.3s ease;
+    }
+
+    .checkbox input:checked + .chk::after {
+      content: '✓';
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    @keyframes checkPop {
+      0% { transform: scale(0.8); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background: var(--surface-hover);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1.5rem;
+    }
+
+    .toggle:hover {
+      background: var(--border);
+      transform: translateY(-2px);
+    }
+
+    .toggle .text {
+      font-weight: 500;
+    }
+
+    .toggle input {
+      opacity: 0;
+      position: absolute;
+    }
+
+    .slider {
+      width: 50px;
+      height: 26px;
+      background: var(--border);
+      border-radius: 13px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      top: 3px;
+      left: 3px;
+      transition: all 0.3s ease;
+    }
+
+    .toggle input:checked + .slider {
+      background: var(--gradient);
+    }
+
+    .toggle input:checked + .slider::before {
+      transform: translateX(24px);
+    }
+
+    .summary {
+      background: linear-gradient(135deg, var(--surface-hover), var(--surface));
+      padding: 1.5rem;
+      border-radius: 15px;
+      border: 1px solid var(--border);
+    }
+
+    .total {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      background: var(--gradient);
+      border-radius: 15px;
+      color: white;
+    }
+
+    .total-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      animation: priceUpdate 0.3s ease;
+    }
+
+    @keyframes priceUpdate {
+      0% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .breakdown {
+      list-style: none;
+    }
+
+    .breakdown li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      animation: slideIn 0.3s ease;
+    }
+
+    .breakdown li:last-child {
+      border-bottom: none;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 768px) {
+      .calculator {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1.5rem;
+      }
+
+      .main-title {
+        font-size: 2rem;
+      }
+
+      body {
+        padding: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1 class="main-title">Price Calculator Pro</h1>
@@ -13,47 +344,202 @@
     <div class="calculator">
       <!-- Input Panel -->
       <div class="panel" role="form" aria-labelledby="calc-heading">
-      <h2 id="calc-heading">Pricing Calculator</h2>
+        <h2 id="calc-heading">Pricing Calculator</h2>
 
-      <div class="form-row qty-row">
-        <label class="label-text" for="qty">Quantity</label>
-        <input type="number" id="qty" min="1" value="10" inputmode="numeric" pattern="[0-9]*">
+        <div class="form-row qty-row">
+          <label class="label-text" for="qty">Quantity</label>
+          <input type="number" id="qty" min="1" value="10" inputmode="numeric" pattern="[0-9]*">
+        </div>
+
+        <div class="form-row">
+          <label class="label-text" for="tier">Plan</label>
+          <select id="tier" aria-label="Select plan">
+            <option value="basic">Basic - $5/unit</option>
+            <option value="pro">Pro - $10/unit</option>
+            <option value="enterprise">Enterprise - $20/unit</option>
+          </select>
+        </div>
+
+        <fieldset class="addons" aria-labelledby="addons-legend">
+          <legend id="addons-legend">Add-ons</legend>
+          <label class="checkbox">
+            <input type="checkbox" value="priority">
+            <span class="chk" aria-hidden="true"></span>
+            <span class="text">Priority Support ($100 flat)</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" value="storage">
+            <span class="chk" aria-hidden="true"></span>
+            <span class="text">Extra Storage ($2 per unit)</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" value="rush">
+            <span class="chk" aria-hidden="true"></span>
+            <span class="text">Rush Handling (5%)</span>
+          </label>
+        </fieldset>
+
+        <label class="toggle">
+          <span class="text">Include Tax (15%)</span>
+          <input type="checkbox" id="tax" checked>
+          <span class="slider" aria-hidden="true"></span>
+        </label>
       </div>
 
-      <div class="form-row">
-        <label class="label-text" for="tier">Plan</label>
-        <select id="tier" aria-label="Select plan">
-          <option value="basic">Basic</option>
-          <option value="pro">Pro</option>
-          <option value="enterprise">Enterprise</option>
-        </select>
+      <!-- Output Summary -->
+      <div class="summary" aria-live="polite">
+        <h2>Summary</h2>
+        <div class="total" id="total" aria-hidden="false">
+          <div class="total-label">Estimated Total</div>
+          <div class="amount" aria-live="polite">$115.00</div>
+        </div>
+        <ul id="breakdown" class="breakdown">
+          <li><span>Basic Plan (10 units)</span><span>$50.00</span></li>
+          <li><span>Subtotal</span><span>$50.00</span></li>
+          <li><span>Tax (15%)</span><span>$7.50</span></li>
+          <li><span><strong>Total</strong></span><span><strong>$57.50</strong></span></li>
+        </ul>
       </div>
-
-      <fieldset class="addons" aria-labelledby="addons-legend">
-        <legend id="addons-legend">Add-ons</legend>
-        <label class="checkbox"><input type="checkbox" value="priority"><span class="chk" aria-hidden="true"></span><span class="text">Priority Support ($100 flat)</span></label>
-        <label class="checkbox"><input type="checkbox" value="storage"><span class="chk" aria-hidden="true"></span><span class="text">Extra Storage ($2 per unit)</span></label>
-        <label class="checkbox"><input type="checkbox" value="rush"><span class="chk" aria-hidden="true"></span><span class="text">Rush Handling (5%)</span></label>
-      </fieldset>
-
-      <label class="toggle">
-        <span class="text">Include Tax (15%)</span>
-        <input type="checkbox" id="tax" checked>
-        <span class="slider" aria-hidden="true"></span>
-      </label>
     </div>
+  </main>
 
-    <!-- Output Summary -->
-    <div class="summary" aria-live="polite">
-      <h2>Summary</h2>
-      <div class="total" id="total" aria-hidden="false">
-        <div class="total-label">Estimated Total</div>
-        <div class="amount" aria-live="polite">$0.00</div>
-      </div>
-      <ul id="breakdown" class="breakdown"></ul>
-    </div>
-  </div>
+  <script>
+    // Pricing configuration
+    const pricing = {
+      basic: 5,
+      pro: 10,
+      enterprise: 20
+    };
 
-<script src="script1.js"></script>
+    const addons = {
+      priority: { type: 'flat', value: 100, name: 'Priority Support' },
+      storage: { type: 'perUnit', value: 2, name: 'Extra Storage' },
+      rush: { type: 'percentage', value: 5, name: 'Rush Handling' }
+    };
+
+    // Get DOM elements
+    const qtyInput = document.getElementById('qty');
+    const tierSelect = document.getElementById('tier');
+    const taxToggle = document.getElementById('tax');
+    const addonCheckboxes = document.querySelectorAll('.addons input[type="checkbox"]');
+    const amountDisplay = document.querySelector('.amount');
+    const breakdownList = document.getElementById('breakdown');
+
+    // Calculate and update pricing
+    function updatePricing() {
+      const qty = parseInt(qtyInput.value) || 0;
+      const tier = tierSelect.value;
+      const includeTax = taxToggle.checked;
+      
+      // Base price calculation
+      const basePrice = qty * pricing[tier];
+      let total = basePrice;
+      const breakdown = [];
+
+      // Add base price to breakdown
+      const tierName = tier.charAt(0).toUpperCase() + tier.slice(1);
+      breakdown.push({ 
+        label: `${tierName} Plan (${qty} units)`, 
+        value: basePrice,
+        isBase: true
+      });
+
+      // Calculate addons
+      let addonTotal = 0;
+      addonCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          const addonKey = checkbox.value;
+          const addon = addons[addonKey];
+          let addonCost = 0;
+
+          switch (addon.type) {
+            case 'flat':
+              addonCost = addon.value;
+              break;
+            case 'perUnit':
+              addonCost = addon.value * qty;
+              break;
+            case 'percentage':
+              addonCost = (basePrice * addon.value) / 100;
+              break;
+          }
+
+          addonTotal += addonCost;
+          breakdown.push({
+            label: addon.name,
+            value: addonCost
+          });
+        }
+      });
+
+      total += addonTotal;
+      const subtotal = total;
+
+      // Add subtotal
+      breakdown.push({
+        label: 'Subtotal',
+        value: subtotal,
+        isSubtotal: true
+      });
+
+      // Calculate tax
+      let taxAmount = 0;
+      if (includeTax) {
+        taxAmount = total * 0.15;
+        total += taxAmount;
+        breakdown.push({
+          label: 'Tax (15%)',
+          value: taxAmount
+        });
+      }
+
+      // Add final total
+      breakdown.push({
+        label: 'Total',
+        value: total,
+        isTotal: true
+      });
+
+      // Update display
+      amountDisplay.textContent = `$${total.toFixed(2)}`;
+      
+      // Update breakdown
+      breakdownList.innerHTML = '';
+      breakdown.forEach(item => {
+        const li = document.createElement('li');
+        const label = item.isTotal ? `<strong>${item.label}</strong>` : item.label;
+        const value = item.isTotal ? `<strong>$${item.value.toFixed(2)}</strong>` : `$${item.value.toFixed(2)}`;
+        li.innerHTML = `<span>${label}</span><span>${value}</span>`;
+        breakdownList.appendChild(li);
+      });
+
+      // Trigger animations
+      amountDisplay.style.animation = 'none';
+      amountDisplay.offsetHeight; // Trigger reflow
+      amountDisplay.style.animation = 'priceUpdate 0.3s ease';
+    }
+
+    // Event listeners
+    qtyInput.addEventListener('input', updatePricing);
+    tierSelect.addEventListener('change', updatePricing);
+    taxToggle.addEventListener('change', updatePricing);
+    addonCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', updatePricing);
+    });
+
+    // Initialize
+    updatePricing();
+
+    // Add smooth interactions
+    document.querySelectorAll('input, select').forEach(element => {
+      element.addEventListener('focus', function() {
+        this.parentElement.style.transform = 'translateY(-2px)';
+      });
+      
+      element.addEventListener('blur', function() {
+        this.parentElement.style.transform = 'translateY(0)';
+      });
+    });
+  </script>
 </body>
 </html>
