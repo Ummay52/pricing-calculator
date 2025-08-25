@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dynamic Pricing Calculator</title>
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1 class="main-title">Price Calculator Pro</h1>
+  <main>
+    <div class="calculator">
+      <!-- Input Panel -->
+      <div class="panel" role="form" aria-labelledby="calc-heading">
+      <h2 id="calc-heading">Pricing Calculator</h2>
+
+      <div class="form-row qty-row">
+        <label class="label-text" for="qty">Quantity</label>
+        <input type="number" id="qty" min="1" value="10" inputmode="numeric" pattern="[0-9]*">
+      </div>
+
+      <div class="form-row">
+        <label class="label-text" for="tier">Plan</label>
+        <select id="tier" aria-label="Select plan">
+          <option value="basic">Basic</option>
+          <option value="pro">Pro</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+      </div>
+
+      <fieldset class="addons" aria-labelledby="addons-legend">
+        <legend id="addons-legend">Add-ons</legend>
+        <label class="checkbox"><input type="checkbox" value="priority"><span class="chk" aria-hidden="true"></span><span class="text">Priority Support ($100 flat)</span></label>
+        <label class="checkbox"><input type="checkbox" value="storage"><span class="chk" aria-hidden="true"></span><span class="text">Extra Storage ($2 per unit)</span></label>
+        <label class="checkbox"><input type="checkbox" value="rush"><span class="chk" aria-hidden="true"></span><span class="text">Rush Handling (5%)</span></label>
+      </fieldset>
+
+      <label class="toggle">
+        <span class="text">Include Tax (15%)</span>
+        <input type="checkbox" id="tax" checked>
+        <span class="slider" aria-hidden="true"></span>
+      </label>
+    </div>
+
+    <!-- Output Summary -->
+    <div class="summary" aria-live="polite">
+      <h2>Summary</h2>
+      <div class="total" id="total" aria-hidden="false">
+        <div class="total-label">Estimated Total</div>
+        <div class="amount" aria-live="polite">$0.00</div>
+      </div>
+      <ul id="breakdown" class="breakdown"></ul>
+    </div>
+  </div>
+
+<script src="script1.js"></script>
+</body>
+</html>
